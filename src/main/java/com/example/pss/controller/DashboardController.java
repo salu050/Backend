@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime; // Import LocalDateTime
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +25,7 @@ public class DashboardController {
 
     private final ApplicationFormRepository applicationFormRepository;
     private final CourseRepository courseRepository;
-    private final UserRepository userRepository; // Keep UserRepository for other potential uses if needed
+    private final UserRepository userRepository;
 
     @Autowired
     public DashboardController(ApplicationFormRepository applicationFormRepository,
@@ -44,42 +45,36 @@ public class DashboardController {
     @GetMapping("/applicants")
     @PreAuthorize("hasRole('ADMIN')") // Secure this endpoint for ADMINs only
     public ResponseEntity<List<ApplicantDashboardDTO>> getDashboardApplicants() {
-        // Use the new method to fetch applications along with their users to avoid N+1
-        // queries
         List<ApplicationForm> applications = applicationFormRepository.findAllWithUsers();
         List<ApplicantDashboardDTO> result = new ArrayList<>();
 
         for (ApplicationForm app : applications) {
             String username = "N/A";
-            // Access username directly from the User object associated with the application
-            if (app.getUser() != null) { // Check if the user object is present (should be with JOIN FETCH)
+            if (app.getUser() != null) {
                 username = app.getUser().getUsername();
             }
 
             String courseName = "";
-            // Use getAdminSelectedCourseId() for the course selected by admin for display
-            // on dashboard
-            // If you want to show the student's preferred course, use getPreferredCourses()
             if (app.getAdminSelectedCourseId() != null) {
                 Optional<Course> courseOpt = courseRepository.findById(app.getAdminSelectedCourseId());
                 courseName = courseOpt.map(Course::getName).orElse("N/A");
             } else if (app.getPreferredCourses() != null && !app.getPreferredCourses().isEmpty()) {
-                // Fallback to showing the first preferred course if admin hasn't selected yet
                 Optional<Course> courseOpt = courseRepository.findById(app.getPreferredCourses().get(0));
                 courseName = courseOpt.map(Course::getName).orElse("N/A") + " (Preferred)";
             }
 
-            // Ensure getApplicationStatus() returns the enum, then use .name() to get its
-            // string value
+            String registrationNumber = app.getRegistrationNumber() != null ? app.getRegistrationNumber() : "N/A";
+            LocalDateTime submissionDate = app.getCreatedAt();
+
             result.add(new ApplicantDashboardDTO(
                     app.getId(),
-                    app.getFullName(),
+                    app.getFullName(), // <<-- Ensure getFullName() is used here
                     username,
+                    registrationNumber,
                     courseName,
-                    app.getSelectedCenter(), // This is the student's preferred center
-                    app.getApplicationStatus() != null ? app.getApplicationStatus().name() : "N/A" // Convert enum to
-                                                                                                   // string
-            ));
+                    app.getSelectedCenter(),
+                    app.getApplicationStatus() != null ? app.getApplicationStatus().name() : "N/A",
+                    submissionDate));
         }
 
         if (result.isEmpty()) {

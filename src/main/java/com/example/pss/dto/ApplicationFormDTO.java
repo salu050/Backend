@@ -1,65 +1,60 @@
-package com.example.pss.model;
+package com.example.pss.dto;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
+import com.example.pss.model.ApplicationForm;
+import com.example.pss.model.ApplicationStatusEnum;
+
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Entity
-@Table(name = "application_details")
-public class ApplicationForm {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ApplicationFormDTO {
     private Long id;
-
-    // NEW: Link back to User
-    @OneToOne(fetch = FetchType.LAZY) // LAZY fetch is generally better for performance for the back-reference
-    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true) // Ensure one-to-one and unique link
-    @JsonBackReference // This side is the "back" of the reference, prevents infinite recursion
-    private User user;
-
-    // Existing form fields
     private String fullName;
-    private String dateOfBirth; // Consider using LocalDate or Date for better type safety
+    private String dateOfBirth;
     private String gender;
     private String nationality;
     private String idType;
     private String idNumber;
-    private String registrationNumber; // Renamed from contactPhone
+    private String registrationNumber; // NEW: Added registrationNumber
     private String contactEmail;
     private String educationLevel;
     private String previousSchool;
     private String selectedCenter;
-
-    @ElementCollection // For storing a collection of simple types (like Longs for course IDs)
-    @CollectionTable(name = "application_preferred_courses", joinColumns = @JoinColumn(name = "application_id"))
-    @Column(name = "course_id")
-    private List<Long> preferredCourses; // Store as list of course IDs
-
-    // NEW: Status and Admin Selection fields
-    @Enumerated(EnumType.STRING) // Store enum name as string
-    @Column(nullable = false)
-    private ApplicationStatusEnum applicationStatus; // e.g., SUBMITTED, UNDER_REVIEW, SELECTED, REJECTED
-
-    private Long adminSelectedCourseId; // Admin's selected course ID
-    private String adminSelectedCenter; // Admin's selected center name
-
-    // Timestamps
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
+    private List<Long> preferredCourses;
+    private ApplicationStatusEnum applicationStatus;
+    private Long adminSelectedCourseId;
+    private String adminSelectedCenter;
+    private LocalDateTime createdAt; // NEW: Added createdAt
     private LocalDateTime updatedAt;
 
-    // Constructors
-    public ApplicationForm() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.applicationStatus = ApplicationStatusEnum.SUBMITTED; // Default status on creation
+    public ApplicationFormDTO() {
     }
 
-    // Getters and Setters
+    // Constructor to map from ApplicationForm entity
+    public ApplicationFormDTO(ApplicationForm form) {
+        this.id = form.getId();
+        this.fullName = form.getFullName();
+        this.dateOfBirth = form.getDateOfBirth();
+        this.gender = form.getGender();
+        this.nationality = form.getNationality();
+        this.idType = form.getIdType();
+        this.idNumber = form.getIdNumber();
+        this.registrationNumber = form.getRegistrationNumber(); // Map registrationNumber
+        this.contactEmail = form.getContactEmail();
+        this.educationLevel = form.getEducationLevel();
+        this.previousSchool = form.getPreviousSchool();
+        this.selectedCenter = form.getSelectedCenter();
+        this.preferredCourses = form.getPreferredCourses();
+        this.applicationStatus = form.getApplicationStatus();
+        this.adminSelectedCourseId = form.getAdminSelectedCourseId();
+        this.adminSelectedCenter = form.getAdminSelectedCenter();
+        this.createdAt = form.getCreatedAt(); // Map createdAt
+        this.updatedAt = form.getUpdatedAt();
+    }
+
+    // Getters and Setters (omitted for brevity, assume all are present)
+    // You can generate them with your IDE if not already present.
+
     public Long getId() {
         return id;
     }
@@ -68,16 +63,6 @@ public class ApplicationForm {
         this.id = id;
     }
 
-    // NEW: Getter and Setter for User
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    // Existing Getters and Setters for form fields
     public String getFullName() {
         return fullName;
     }
@@ -126,7 +111,6 @@ public class ApplicationForm {
         this.idNumber = idNumber;
     }
 
-    // Renamed from getContactPhone() and setContactPhone()
     public String getRegistrationNumber() {
         return registrationNumber;
     }
@@ -175,7 +159,6 @@ public class ApplicationForm {
         this.preferredCourses = preferredCourses;
     }
 
-    // NEW: Getters and Setters for status and admin selection
     public ApplicationStatusEnum getApplicationStatus() {
         return applicationStatus;
     }
@@ -214,17 +197,5 @@ public class ApplicationForm {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    // Add a pre-persist and pre-update listener to manage timestamps
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }

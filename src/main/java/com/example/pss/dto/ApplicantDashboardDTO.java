@@ -1,24 +1,31 @@
 package com.example.pss.dto;
 
+import java.time.LocalDateTime; // Import LocalDateTime
+
 public class ApplicantDashboardDTO {
     private Long id;
     private String fullname;
     private String username;
+    private String registrationNumber;
     private String course;
     private String center;
     private String status;
+    private LocalDateTime createdAt; // NEW: Added createdAt for submission date
 
     public ApplicantDashboardDTO() {
     }
 
-    public ApplicantDashboardDTO(Long id, String fullname, String username, String course, String center,
-            String status) {
+    public ApplicantDashboardDTO(Long id, String fullname, String username, String registrationNumber, String course,
+            String center,
+            String status, LocalDateTime createdAt) { // UPDATED: Added createdAt to constructor
         this.id = id;
         this.fullname = fullname;
         this.username = username;
+        this.registrationNumber = registrationNumber;
         this.course = course;
         this.center = center;
         this.status = status;
+        this.createdAt = createdAt; // NEW: Initialize createdAt
     }
 
     // Getters and setters
@@ -46,6 +53,14 @@ public class ApplicantDashboardDTO {
         this.username = username;
     }
 
+    public String getRegistrationNumber() {
+        return registrationNumber;
+    }
+
+    public void setRegistrationNumber(String registrationNumber) {
+        this.registrationNumber = registrationNumber;
+    }
+
     public String getCourse() {
         return course;
     }
@@ -68,5 +83,15 @@ public class ApplicantDashboardDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    // NEW: Getter for createdAt
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    // NEW: Setter for createdAt
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
