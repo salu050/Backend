@@ -18,8 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-// No need to import CorsFilter if you're using the HttpSecurity.cors() method
-// import org.springframework.web.filter.CorsFilter;
+import java.util.Arrays; // Import Arrays
 
 @Configuration
 @EnableWebSecurity
@@ -61,16 +60,17 @@ public class SecurityConfig {
         return authProvider;
     }
 
-    // CORS Configuration Source Bean: Defines the Cross-Origin Resource Sharing
-    // rules
+    // FIX: Updated CORS Configuration Source Bean: Defines the Cross-Origin
+    // Resource Sharing
+    // rules. This now explicitly allows both HTTP and HTTPS origins for
+    // localhost:3000.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true); // Allow sending of cookies, authorization headers etc.
-        config.addAllowedOrigin("http://localhost:3000"); // Allow your frontend origin
-        // In production, replace "http://localhost:3000" with your actual frontend
-        // domain(s).
+        // FIX: Add both HTTP and HTTPS origins for localhost during development
+        config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://localhost:3000"));
         config.addAllowedHeader("*"); // Allow all headers
         config.addAllowedMethod("*"); // Allow all HTTP methods (GET, POST, PUT, DELETE, OPTIONS, etc.)
         source.registerCorsConfiguration("/**", config); // Apply this CORS configuration to all paths
@@ -85,8 +85,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless REST APIs using JWT
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Apply CORS configuration
                 .authorizeHttpRequests(authorize -> authorize
-                        // Public endpoints that do not require authentication
-                        .requestMatchers("/api/users/login", "/api/users/register", "/api/users/reset-password")
+                        // FIX: Add "/api/users/reset-password-request" to public endpoints
+                        .requestMatchers("/api/users/login", "/api/users/register", "/api/users/reset-password",
+                                "/api/users/reset-password-request")
                         .permitAll()
                         // All other requests require authentication
                         .anyRequest().authenticated())

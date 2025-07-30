@@ -96,6 +96,39 @@ public class UserController {
     }
 
     /**
+     * FIX: Handles the request to send a password reset link (or initiate reset
+     * process).
+     * This endpoint is called by the frontend when the user requests to reset their
+     * password.
+     * It typically simulates sending an email or performs initial validation.
+     *
+     * @param data A map containing "username".
+     * @return ResponseEntity with a message indicating success or failure of the
+     *         request.
+     */
+    @PostMapping("/reset-password-request")
+    public ResponseEntity<?> requestPasswordReset(@RequestBody Map<String, String> data) {
+        String username = data.get("username");
+        // In a real application, you would:
+        // 1. Validate the username.
+        // 2. Generate a unique token.
+        // 3. Store the token with an expiration time associated with the user.
+        // 4. Send an email to the user with a link containing the token.
+        // For this demo, we'll just simulate success.
+
+        boolean userExists = userService.findByUsername(username).isPresent(); // Assuming findByUsername exists
+
+        if (userExists) {
+            // Simulate sending email (replace with actual email sending logic)
+            System.out.println("Simulating password reset link sent to: " + username);
+            return ResponseEntity.ok(Map.of("message", "Password reset link sent to your email (simulated)."));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "User with that username not found."));
+        }
+    }
+
+    /**
      * Retrieves user details by ID.
      * Restricted to ADMIN role for security.
      *
@@ -105,8 +138,7 @@ public class UserController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Restrict to ADMINs
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
-        // FIXED: Changed getUserById to findById to match UserService interface
-        Optional<User> userOpt = userService.findById(id); // Line 105 was here
+        Optional<User> userOpt = userService.findById(id);
 
         if (userOpt.isPresent()) {
             User user = userOpt.get();
