@@ -10,7 +10,8 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "http://localhost:3000")
+// FIX: Updated CrossOrigin to allow both HTTP and HTTPS from localhost:3000
+@CrossOrigin(origins = { "http://localhost:3000", "https://localhost:3000" })
 public class UserController {
 
     private final UserService userService;
@@ -96,7 +97,7 @@ public class UserController {
     }
 
     /**
-     * FIX: Handles the request to send a password reset link (or initiate reset
+     * Handles the request to send a password reset link (or initiate reset
      * process).
      * This endpoint is called by the frontend when the user requests to reset their
      * password.

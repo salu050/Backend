@@ -1,11 +1,11 @@
 package com.example.pss.controller;
 
-import com.example.pss.dto.ApplicantDashboardDTO;
+import com.example.pss.dto.ApplicantDashboardDTO; // Keep this DTO if you are using it
 import com.example.pss.model.ApplicationForm;
 import com.example.pss.model.Course;
 import com.example.pss.repository.ApplicationFormRepository;
 import com.example.pss.repository.CourseRepository;
-import com.example.pss.repository.UserRepository; // Assuming UserRepository is still needed for other logic
+import com.example.pss.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,17 +16,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays; // Import Arrays for List - although not directly used in this method, it's fine
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/dashboard")
-@CrossOrigin(origins = "http://localhost:3000")
+// FIX: Updated CrossOrigin to allow both HTTP and HTTPS from localhost:3000
+@CrossOrigin(origins = { "http://localhost:3000", "https://localhost:3000" }, allowCredentials = "true") // Added
+                                                                                                         // allowCredentials
 public class DashboardController {
 
     private final ApplicationFormRepository applicationFormRepository;
     private final CourseRepository courseRepository;
-    private final UserRepository userRepository; // Retained as it was in previous versions
+    private final UserRepository userRepository;
 
     @Autowired
     public DashboardController(ApplicationFormRepository applicationFormRepository,
@@ -38,13 +41,14 @@ public class DashboardController {
     }
 
     /**
-     * Retrieves a list of applicants for the admin dashboard.
-     * Accessible only by users with the 'ADMIN' role.
+     * Retrieves a list of applicants for the dashboard.
+     * Accessible by users with either the 'ADMIN' or 'MINISTRY' role.
      *
      * @return ResponseEntity with a list of ApplicantDashboardDTOs.
      */
     @GetMapping("/applicants")
-    @PreAuthorize("hasRole('ADMIN')") // Secure this endpoint for ADMINs only
+    // FIX: Allow both 'ADMIN' and 'MINISTRY' roles to access this endpoint
+    @PreAuthorize("hasAnyRole('ADMIN', 'MINISTRY')") // <--- THIS IS THE CRUCIAL CHANGE
     public ResponseEntity<List<ApplicantDashboardDTO>> getDashboardApplicants() {
         // Assuming findAllWithUsers() correctly fetches ApplicationForm entities
         List<ApplicationForm> applications = applicationFormRepository.findAllWithUsers();
@@ -56,7 +60,7 @@ public class DashboardController {
                 username = app.getUser().getUsername();
             }
 
-            String courseNameForDisplay = ""; // This will be the single course name for the 'Course' column
+            String courseNameForDisplay = "";
             // Logic to determine which course name to display in the 'course' column.
             // If adminSelectedCourseId exists, use that. Otherwise, use the first preferred
             // course.
@@ -74,7 +78,6 @@ public class DashboardController {
             LocalDateTime submissionDate = app.getCreatedAt();
 
             // --- Crucial additions for Education Level, Center, and Preferred Courses list
-            // ---
             String educationLevel = app.getEducationLevel() != null ? app.getEducationLevel() : "N/A";
             String selectedCenter = app.getSelectedCenter() != null ? app.getSelectedCenter() : "N/A";
             List<Long> preferredCoursesList = app.getPreferredCourses(); // Directly get the list of IDs

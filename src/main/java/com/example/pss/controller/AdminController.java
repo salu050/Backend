@@ -12,7 +12,8 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "http://localhost:3000") // Enable CORS for frontend requests
+// FIX: Updated CrossOrigin to allow both HTTP and HTTPS from localhost:3000
+@CrossOrigin(origins = { "http://localhost:3000", "https://localhost:3000" })
 public class AdminController {
 
     // Using constructor injection

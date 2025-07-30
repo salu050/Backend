@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "http://localhost:3000")
+// FIX: Updated CrossOrigin to allow both HTTP and HTTPS from localhost:3000
+@CrossOrigin(origins = { "http://localhost:3000", "https://localhost:3000" })
 @RestController
 @RequestMapping("/api/applications")
 public class ApplicationFormController {
@@ -74,10 +75,9 @@ public class ApplicationFormController {
             return ResponseEntity.noContent().build();
         }
 
-        // --- THE FIX IS HERE ---
         // Map the list of ApplicationForm entities to a list of DTOs
         List<ApplicationFormDTO> dtoList = list.stream()
-                .map(ApplicationFormDTO::new)
+                .map(ApplicationFormDTO::new) // Ensure ApplicationFormDTO has a constructor that takes ApplicationForm
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(dtoList);
@@ -147,6 +147,7 @@ public class ApplicationFormController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // This DTO is for a specific status endpoint, not the general dashboard DTO
     public static class ApplicationStatusDTO {
         public String application_status;
         public String center;

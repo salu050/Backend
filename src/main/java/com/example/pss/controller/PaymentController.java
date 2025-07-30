@@ -12,10 +12,12 @@ import org.springframework.security.core.Authentication; // To get details of th
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException; // For throwing HTTP status exceptions
 
+// Import Arrays for List
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:3000") // Adjust this to your frontend's actual URL
+// FIX: Updated CrossOrigin to allow both HTTP and HTTPS from localhost:3000
+@CrossOrigin(origins = { "http://localhost:3000", "https://localhost:3000" })
 @RestController
 @RequestMapping("/api/payments") // Base path for payment-related endpoints
 public class PaymentController {
@@ -54,18 +56,6 @@ public class PaymentController {
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('ADMIN') or (#userId == authentication.principal.id)") // Direct principal ID check
     public ResponseEntity<List<Payment>> getPaymentsByUserId(@PathVariable Long userId, Authentication authentication) {
-        // The @PreAuthorize handles the main authorization.
-        // If authentication.principal.id doesn't work directly with your UserDetails,
-        // you would use the more robust check inside the method body as commented
-        // below.
-        // Long authenticatedUserId = getAuthenticatedUserId(authentication);
-        // if (!authentication.getAuthorities().stream().anyMatch(a ->
-        // a.getAuthority().equals("ROLE_ADMIN"))) {
-        // if (authenticatedUserId == null || !authenticatedUserId.equals(userId)) {
-        // return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null); // Forbidden
-        // }
-        // }
-
         List<Payment> payments = paymentService.getPaymentsByUserId(userId);
         if (payments.isEmpty()) {
             return ResponseEntity.noContent().build(); // HTTP 204 No Content
