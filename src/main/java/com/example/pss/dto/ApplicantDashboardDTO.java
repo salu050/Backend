@@ -5,33 +5,34 @@ import java.util.List; // Import List for preferredCourses
 
 public class ApplicantDashboardDTO {
     private Long id;
-    private String fullname;
+    private String fullName; // Changed from 'fullname' to 'fullName'
     private String username;
     private String registrationNumber;
     private String course;
     private String center;
-    private String status;
+    private String applicationStatus; // Changed from 'status' to 'applicationStatus'
     private LocalDateTime createdAt;
-    private String educationLevel; // <<< THIS IS NEW AND REQUIRED
-    private List<Long> preferredCourses; // <<< THIS IS NEW AND REQUIRED
+    private String educationLevel;
+    private List<Long> preferredCourses;
 
     public ApplicantDashboardDTO() {
     }
 
     // UPDATED CONSTRUCTOR to include educationLevel and preferredCourses
-    public ApplicantDashboardDTO(Long id, String fullname, String username, String registrationNumber, String course,
-            String center, String status, LocalDateTime createdAt,
+    // And updated parameter names to match new field names
+    public ApplicantDashboardDTO(Long id, String fullName, String username, String registrationNumber, String course,
+            String center, String applicationStatus, LocalDateTime createdAt,
             String educationLevel, List<Long> preferredCourses) {
         this.id = id;
-        this.fullname = fullname;
+        this.fullName = fullName; // Initialize with new name
         this.username = username;
         this.registrationNumber = registrationNumber;
         this.course = course;
         this.center = center;
-        this.status = status;
+        this.applicationStatus = applicationStatus; // Initialize with new name
         this.createdAt = createdAt;
-        this.educationLevel = educationLevel; // Initialize new field
-        this.preferredCourses = preferredCourses; // Initialize new field
+        this.educationLevel = educationLevel;
+        this.preferredCourses = preferredCourses;
     }
 
     // Getters and setters (ensure all are present, especially for new fields)
@@ -43,12 +44,12 @@ public class ApplicantDashboardDTO {
         this.id = id;
     }
 
-    public String getFullname() {
-        return fullname;
+    public String getFullName() { // Changed from getFullname()
+        return fullName;
     }
 
-    public void setFullname(String fullname) {
-        this.fullname = fullname;
+    public void setFullName(String fullName) { // Changed from setFullname()
+        this.fullName = fullName;
     }
 
     public String getUsername() {
@@ -83,12 +84,12 @@ public class ApplicantDashboardDTO {
         this.center = center;
     }
 
-    public String getStatus() {
-        return status;
+    public String getApplicationStatus() { // Changed from getStatus()
+        return applicationStatus;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setApplicationStatus(String applicationStatus) { // Changed from setStatus()
+        this.applicationStatus = applicationStatus;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -99,7 +100,6 @@ public class ApplicantDashboardDTO {
         this.createdAt = createdAt;
     }
 
-    // NEW GETTERS AND SETTERS FOR EDUCATION LEVEL AND PREFERRED COURSES
     public String getEducationLevel() {
         return educationLevel;
     }
